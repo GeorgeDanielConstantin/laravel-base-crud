@@ -12,11 +12,17 @@ class TrackController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        // $tracks = Track::all();
-        // // dd($tracks);
-        // return view('tracks.index')
+    public function index(Request $request){
+        $tracks = Track::limit(20)->get();
+
+        if($request->has('term')){
+            $term = $request->get('term');
+            $tracks = Track::where('title', 'LIKE', "%$term%")->paginate(10)->withQueryString();
+        } else {
+            $tracks = Track::paginate(10);
+        }
+
+        return view('tracks.index', compact('tracks'));
     }
 
     /**
@@ -26,7 +32,7 @@ class TrackController extends Controller
      */
     public function create()
     {
-        //
+        return view('tracks.create');
     }
 
     /**
@@ -37,7 +43,20 @@ class TrackController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $request->validate([
+            'title' => 'required',
+            'author' => 'required',
+        ]);
+
+        $data = $request->all();
+        $track = new Track;  
+
+         $track->fill($data);
+
+        $track->save();
+
+        return redirect()->route('tracks.show', $track);
     }
 
     /**
@@ -46,9 +65,9 @@ class TrackController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Track $track)
     {
-        //
+        return view('tracks.show', compact('track'));
     }
 
     /**
@@ -57,9 +76,9 @@ class TrackController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Track $track)
     {
-        //
+        return view('tracks.edit', compact('track'));
     }
 
     /**
@@ -69,9 +88,31 @@ class TrackController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Track $track)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:20',
+            'album' => 'nullable|string|max:20',
+            'author' => 'required|string|max:20',
+            'editor' => 'nullable|string|max:20',
+            'length' => 'nullable|date_format:i:s'
+        ],
+        [
+            'title.required' => 'Inserire il titolo',
+            'title.string' => 'Necessaria stringa',
+            'title.max' => 'Massimo 20 caratteri',
+            'album.string' => 'Necessaria stringa',
+            'album.max' => 'Massimo 20 caratteri',
+            'author.required' => 'Inserire l\'autore',
+            'author.string' => 'Necessaria stringa',
+            'author.max' => 'Massimo 20 caratteri',
+            'editor.string' => 'Necessaria stringa',
+            'editor.max' => 'Massimo 20 caratteri',
+            'length.date_format' => 'Il formato della durata deve essere di tipo time (00:00)']);
+        $data = $request->all();
+        $track->update($data);
+        
+        return redirect()->route('tracks.show', ['track' => $track->id]);
     }
 
     /**
@@ -80,8 +121,9 @@ class TrackController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Track $track)
     {
-        //
+        $track->delete();
+        return redirect()->route('tracks.index');
     }
 }

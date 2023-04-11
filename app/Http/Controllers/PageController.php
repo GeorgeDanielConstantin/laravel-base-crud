@@ -12,4 +12,9 @@ class PageController extends Controller
 
         return view('track', compact('tracks'));
     }
+
+    public function index(){
+
+        return view('index');
+    }
 }

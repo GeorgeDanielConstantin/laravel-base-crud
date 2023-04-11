@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
-@section('page-name')
-Canzoni
-@endsection
+@section('page-name', 'Canzoni')
 
 @section('content')
 

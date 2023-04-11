@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
-// use App\Http\Controllers\TrackController;
+use App\Http\Controllers\TrackController;
 
 
 /*
@@ -16,6 +16,8 @@ use App\Http\Controllers\PageController;
 |
 */
 
-Route::get('/', [PageController::class, 'tracks']);
-
-// Route::resource('tracks', TrackController::class);
+Route::get('tracks', [TrackController::class, 'index'])->name('tracks.index');
+Route::get('/', [TrackController::class, 'show'])->name('tracks.show');
+Route::get('/', [TrackController::class, 'create'])->name('tracks.create');
+Route::post('/', [TrackController::class, 'store'])->name('tracks.store');
+Route::resource('tracks', TrackController::class);
